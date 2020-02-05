@@ -11,12 +11,6 @@ class CourseModelTest(TestCase):
                                           description='description',
                                           category=category_fk
                                           )
-        branch_fk = Branch.objects.create(latitude='12:18:19',
-                                          longitude='13:19:20',
-                                          address='some stupid address',
-                                          branches=course_db)
-        contact_fk = Contact.objects.create(value='Positive value',
-                                            contacts=course_db)
 
     def test_category_name(self):
         category1 = Category.objects.get(id=1)
@@ -42,5 +36,32 @@ class CourseModelTest(TestCase):
         course1 = Course.objects.get(id=1)
         max_length = course1._meta.get_field('description').max_length
         self.assertEquals(max_length, 120)
+
+
+class BranchModelTest(TestCase):
+    @classmethod
+    def setUp(cls):
+        category_fk = Category.objects.create(name='Bla bla bla', imgpath='some string')
+        course_1 = Course.objects.create(name='Something',
+                                         logo='SomethingAsWell',
+                                         description='description',
+                                         category=category_fk,
+                                         )
+        branch_1 = Branch.objects.create(latitude='latitude', longitude='longitude', address='address', branches=course_1)
+
+    def test_latitude(self):
+        branch1 = Branch.objects.get(id=1)
+        max_length = branch1._meta.get_field('latitude').max_length
+        self.assertEquals(max_length, 120)
+
+    def test_longitude(self):
+        branch1 = Branch.objects.get(id=1)
+        max_length = branch1._meta.get_field('longitude').max_length
+        self.assertEquals(max_length, 120)
+
+    def test_address(self):
+        branch1 = Branch.objects.get(id=1)
+        self.assertTrue('address' in branch1.address)
+
 
 
