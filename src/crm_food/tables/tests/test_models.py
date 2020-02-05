@@ -64,4 +64,24 @@ class BranchModelTest(TestCase):
         self.assertTrue('address' in branch1.address)
 
 
+class ContactModelTest(TestCase):
+    @classmethod
+    def setUp(cls):
+        category_fk = Category.objects.create(name='Bla bla bla', imgpath='some string')
+        course_1 = Course.objects.create(name='Something',
+                                         logo='SomethingAsWell',
+                                         description='description',
+                                         category=category_fk,
+                                         )
+        Contact.objects.create(contact_by_choices=1, value='Some value', contacts=course_1)
+
+    def test_choice_of_contacts(self):
+        contact_1 = Contact.objects.get(id=1)
+        contact_by_choices_1 = contact_1.contact_by_choices
+        self.assertEqual(contact_by_choices_1, 1)
+
+    def contacts_value(self):
+        contact_1 = Contact.objects.get(id=1)
+        value_1 = contact_1._meta.get_field('contact_by_choice').max_length
+        self.assertEqual(value_1, 100)
 
