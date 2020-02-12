@@ -47,7 +47,7 @@ class BranchModelTest(TestCase):
                                          description='description',
                                          category=category_fk,
                                          )
-        branch_1 = Branch.objects.create(latitude='latitude', longitude='longitude', address='address', branches=course_1)
+        branch_1 = Branch.objects.create(latitude='latitude', longitude='longitude', address='address', course=course_1)
 
     def test_latitude(self):
         branch1 = Branch.objects.get(id=1)
@@ -73,7 +73,7 @@ class ContactModelTest(TestCase):
                                          description='description',
                                          category=category_fk,
                                          )
-        Contact.objects.create(contact_by_choices=1, value='Some value', contacts=course_1)
+        Contact.objects.create(contact_by_choices=1, value='Some value', course=course_1)
 
     def test_choice_of_contacts(self):
         contact_1 = Contact.objects.get(id=1)

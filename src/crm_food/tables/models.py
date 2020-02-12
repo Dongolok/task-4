@@ -23,7 +23,7 @@ class Branch(models.Model):
     latitude = models.CharField(max_length=120)
     longitude = models.CharField(max_length=120)
     address = models.TextField(blank=False, null=False)
-    branches = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='branch')  # ForeignKey is not one-to-many, but many-to-one relationship
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='branch')  # ForeignKey is not one-to-many, but many-to-one relationship
 
     def __str__(self):
         return self.address
@@ -35,7 +35,7 @@ class Contact(models.Model):
                        (3, 'EMAIL')]
     contact_by_choices = models.IntegerField(choices=CONTACT_CHOICES)
     value = models.CharField(max_length=100, default='')
-    contacts = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='contact')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='contact')
 
     def __str__(self):
         return self.value
