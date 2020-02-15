@@ -5,13 +5,13 @@ from .models import Course, Branch, Contact, Category
 class ContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contact
-        fields = '__all__'
+        fields = ['contact_by_choices', 'value']
 
 
 class BranchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Branch
-        fields = '__all__'
+        fields = ['latitude', 'longitude', 'address']
 
 
 class CourseSerializer(serializers.ModelSerializer):
@@ -25,14 +25,22 @@ class CourseSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         branches_data = validated_data.pop('branch')
         contacts_data = validated_data.pop('contact')
-        course_1 = Course.objects.create(**validated_data)
+        courses = Course.objects.create(**validated_data)
+
         for branch_data in branches_data:
-            Branch.objects.create(course=course_1, **branch_data)
-        Contact.objects.create(course=course_1, **contacts_data)
-        return course_1
+            lalapooza = Branch.objects.create(course=courses, **branch_data)
+            lalapooza.save()
+
+        for contact_data in contacts_data:
+            danslapeau = Contact.objects.create(course=courses, **contact_data)
+            danslapeau.save()
+
+        return courses
 
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = '__all__'
+
+

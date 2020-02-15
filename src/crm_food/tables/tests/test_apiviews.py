@@ -1,9 +1,12 @@
 from django.test import TestCase
-from rest_framework import status
-from rest_framework.test import APITestCase
+from django.urls import include, path, reverse
+from rest_framework.test import APIClient
 from tables.models import Course, Category, Branch, Contact
 from tables import apiviews
 from django.test import Client
+from rest_framework import status
+from tables.urls import CourseList
+from rest_framework.test import APIRequestFactory
 
 
 # class TestCourseList(APITestCase):
@@ -16,59 +19,64 @@ from django.test import Client
 
 
 class CourseViewsTest(TestCase):
-    def SetUp(self):
-        self.client = Client()
-        category_fk = Category.objects.create(name='Bla bla bla', imgpath='some string')
-        course_1 = Course.objects.create(name='Something',
-                                              logo='SomethingAsWell',
-                                              description='description',
-                                              category=category_fk,
-                                              )
-        contact_1 = Contact.objects.create(contact_by_choices=1, value='Some value', contacts=course_1)
-        branch_1 = Branch.objects.create(latitude='latitude', longitude='longitude', address='address', branches=course_1)
+    def setUp(self):
+        self.client = APIClient()
 
-    # def test_data(self):
-    #     self.assertEqual(self.course_1.name, 'Something')
-    #     self.assertEqual(self.course_1.logo, 'SomethingAsWell')
-    #     self.assertEqual(self.course_1.description, 'description')
-    #     self.assertEqual(self.course_1.category, self.category_fk)
+        self.category_fk = Category.objects.create(name='Bla bla bla', imgpath='some string')
+        self.category_fk.save()
+        self.course_1 = Course.objects.create(category=self.category_fk,
+                                              name='Something',
+                                              description='description',
+                                              logo='SomethingAsWell',
+                                              )
+        self.course_1.save()
+        self.contact_1 = Contact.objects.create(contact_by_choices=1, value='Some value', course=self.course_1)
+        self.contact_1.save()
+        self.branch_1 = Branch.objects.create(latitude='latitude', longitude='longitude', address='address', course=self.course_1)
+        self.branch_1.save()
+
+    def test_data(self):
+        self.assertEqual(self.course_1.name, 'Something')
+        self.assertEqual(self.course_1.logo, 'SomethingAsWell')
+        self.assertEqual(self.course_1.description, 'description')
+        self.assertEqual(self.course_1.category, self.category_fk)
+        self.assertEqual(self.course_1.id, self.branch_1.course.id)
+        self.assertEqual(self.course_1.id, self.contact_1.course.id)
 
     def test_get_ok(self):
         response = self.client.get('/course/')
         self.assertEqual(response.status_code, 200)
 
+    def test_get_by_id_ok(self):
+        response = self.client.get('/course/1/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_by_id_not_ok(self):
+        response = self.client.get('/course/2/')
+        self.assertEqual(response.status_code, 404)
+
     def test_post_ok(self):
-        response = self.client.post('/course/', {
-                                                "category": 1,
+        data = {
+            'category': 1,
+            'name': 'FLEX',
+            'description': 'gym place to build muscles',
+            'logo': 'some text',
+            'branch': [{'latitude': 'some string',
+                        'longitude': 'some numbers',
+                        'address': 'CIty of Heroes',
+                        'course': 1
+                        }],
 
-                                                "name": "FLEX",
+            'contact': [{'contact_by_choices': 1,
+                         'value': 'PHONE',
+                         'course': 1
+                         }]
 
-                                                "description": " gym place to build muscles",
+        }
+        response = self.client.post('/course/', data, format='json')
 
-                                                "logo": "some text",
-
-                                                "branch": [{"latitude": "some string",
-                                                            "longitude": "some numbers",
-                                                            "address": "City of Heroes"}],
-
-
-                                                "contact": [{"contact_by_choices": 1,
-                                                             "contacts": "PHONE"}]
-
-                                                })
         self.assertEqual(response.status_code, 201)
 
-#
-# {
-#     "category": 1,
-#     "name": "FLEX",
-#     "description": " gym place to build muscles",
-#     "logo": "some text",
-#     "branch": [{"latitude": "some string",
-#                 "longitude": "some numbers",
-#                 "address": "CIty of Heroes"}],
-#
-#     "contact": [{"contact_by_choices": 1,
-#                  "value": "PHONE"}]
-#
-# }
+    def test_get_by_id_not_ok(self):
+        response = self.client.get('/course/100/')
+        self.assertEqual(response.status_code, 404)
