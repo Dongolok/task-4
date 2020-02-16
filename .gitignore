@@ -1,0 +1,7 @@
+bin
+.idea
+include
+lib
+src/crm_food/db.sqlite3
+src/static
+src/media
